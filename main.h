@@ -26,6 +26,16 @@
 
 #include <stdio.h>
 
+#include <hw_memmap.h>
+
+#include <hw_regaccess.h>
+
+#include <lcd_c.h>
+
+#include <string.h>
+
+#include <hal_LCD.h>
+
 
 //#define bool int
 //#define true 1
