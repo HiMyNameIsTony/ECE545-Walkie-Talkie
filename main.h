@@ -24,6 +24,8 @@
 
 #include <stdlib.h>
 
+#include <adc.h>
+
 #include <stdio.h>
 
 #include <hw_memmap.h>
