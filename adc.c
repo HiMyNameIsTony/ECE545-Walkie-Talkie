@@ -1,10 +1,7 @@
-#include <msp430.h>
-#include <stdio.h>
+#include <main.h>
 
 
-void initialize_adc(void);
-void start_adc_sampling(void);
-
+/*
 int main(void)
 {
   WDTCTL = WDTPW + WDTHOLD;                 // Stop WatchDog Time
@@ -18,7 +15,7 @@ int main(void)
     		}
     }
   return 0;
-}
+}*/
 
 // Function to configure and initialize ADC
 void initialize_adc(void){
@@ -27,8 +24,10 @@ void initialize_adc(void){
 	  ADC12CTL1 = ADC12SHP + ADC12CONSEQ_2;     // Enable sampling timer (pulse mode) and Repeat-single-channel mode
 	  ADC12CTL3 = ADC12CSTARTADD0 + ADC12CSTARTADD1 + ADC12CSTARTADD3;   // Change conversion start address to 0xB (i,e channel 11)
 	  ADC12MCTL11 = ADC12VRSEL_0 + ADC12INCH_11;   // Set ADC sample channel to Microphone connected to P9.3, analog pin: A11
-	  ADC12IER0 = ADC12IE11; 		// Enables the interrupt request for ADC12IFG11 bit.
+//	  ADC12IER0 = ADC12IE11; 		// Enables the interrupt request for ADC12IFG11 bit.
 	  ADC12CTL0 |= ADC12ENC;  // Set ADC12ENC to enable conversion
+
+	  start_adc_sampling();
 }
 
 void start_adc_sampling(void){

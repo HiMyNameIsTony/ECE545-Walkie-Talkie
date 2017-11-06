@@ -17,7 +17,11 @@ void main(void) {
 
     volatile int read_data;
 
+    unsigned int sample;
+
     curr_time = 0;
+
+    char hey[] = "HEY";
 
 //    printf("Hey There!\n");
 
@@ -31,6 +35,12 @@ void main(void) {
 
     initSPI();
 
+ //   Init_LCD();
+
+ //   showChar(hey[0],pos1);
+ //   showChar(hey[1],pos2);
+ //   showChar(hey[2],pos3);
+
 //    writeReg(0x10,0x24);
 
 //    ver = readReg(0x10);
@@ -43,15 +53,19 @@ void main(void) {
 
 //    test_rssi = readRSSI(false);
 
+
+
       rfm69_initialize(RF69_915MHZ,0,0);
 
+      initialize_adc();
+
       setMode(RF69_MODE_RX);
+
+//    setMode(RF69_MODE_TX);
 
     for(;;) {
 
 //    send(0,(const void*)&transmit_char,1,false);
-
-
 
     P1OUT ^= 0x01;                      // Toggle P1.0 using exclusive-OR
 
@@ -62,6 +76,15 @@ void main(void) {
         read_data = readReg(REG_FIFO);
     }
 
+
+/*
+    if (ADC12IFGR0 == ADC12IFG11){
+        // Grab ADC output value from register ADC12MEM11
+        //printf("ADC output: %d\n",ADC12MEM11);
+        sample = ADC12MEM11;
+        send(0,(const void*)&sample,1,false);
+    }
+*/
 
 
 //    i = 10000;                          // SW Delay
