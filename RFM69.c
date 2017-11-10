@@ -609,6 +609,8 @@ void setMode(char newMode)
 
     // no need to wait for transmit mode to be ready since its handled by the radio
 
+    free(transfer_buf);
+
     setMode(RF69_MODE_TX);
 
     txStart = millis();

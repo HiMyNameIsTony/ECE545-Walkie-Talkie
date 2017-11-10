@@ -11,7 +11,7 @@ unsigned long millis(){
 
     unsigned long msec;
 
-    msec = (1000*(unsigned long)RTCPS)>>15 + (1000*(unsigned long)RTCTIM0);
+    msec = (unsigned long)((1000UL*(unsigned long)RTCPS)>>15);//(1000*(unsigned long)RTCPS)>>15 + (1000*(unsigned long)RTCTIM0);
 
     return msec;
 
