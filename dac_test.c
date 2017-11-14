@@ -8,11 +8,11 @@
 #include <msp430.h>
 #include <i2c_master.h>
 
-const char slave_address = 0x62;
-const int PRESCALE = 0x0001;
-char TX_data_i = 0;
-volatile char RX_data[5]; // {0xC0, 0x32, 0x10, 0x0A, 0x5B}
-const short DACLookup_FullSine_8Bit[256] =
+const char slave_address = 0x62;                // MCP4725 I2C address
+const int PRESCALE = 13;                        // baudrate = SMCLK / PRESCALE = 5.33MHz/13 = 410Hz
+char TX_data_i = 0;                             // index for sine wave below
+// volatile char RX_data[5];
+const short DACLookup_FullSine_8Bit[256] =      // 12-bit sine wave with 256 samples
 {
   2048, 2098, 2148, 2198, 2248, 2298, 2348, 2398,
   2447, 2496, 2545, 2594, 2642, 2690, 2737, 2784,
@@ -68,9 +68,14 @@ int main(void)
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
+    // speed up the clock a bit
+    CSCTL0 = CSKEY;                                 // unlock clock settings
+    CSCTL1 = DCOFSEL_4;                             // set DCO to 5.33MHz
+    CSCTL3 = DIVS_0 | DIVM_0;                       // set SMCLK and MCLK to 5.33MHz/1
+    CSCTL0_H = 0;                                   // lock clock settings
 
     __enable_interrupt();
-    I2C_TX_init( slave_address, PRESCALE );         // init a TX to the slave
+    I2C_TX_init( slave_address, PRESCALE );         // init transmissions to slave at a rate of ~400kHz
 
     if( I2C_slave_present() ) {
         printf("Slave present.");
@@ -80,13 +85,10 @@ int main(void)
     }
 
     while(1) {
-        DAC_TX_FM( DACLookup_FullSine_8Bit[TX_data_i] << 4 );    // TX bytes to DAC
-        I2C_RX_init( slave_address, PRESCALE );
-        DAC_RX( &RX_data );
-        TX_data_i += 1;
-        I2C_TX_init( slave_address, PRESCALE );
+        DAC_TX_FM( ( DACLookup_FullSine_8Bit[TX_data_i] >> 5 ) + 0x800 );   // TX sinewave bits to DAC
+        //I2C_RX_init( slave_address, PRESCALE );                           // attenuated by 32 (7-bit)
+        //DAC_RX( &RX_data );                                               // and shifted up by 2^12 aka 1.65V
+        TX_data_i += 1;                                                     // increment sine index
+        //I2C_TX_init( slave_address, PRESCALE );
     }
 }
-
-
-
