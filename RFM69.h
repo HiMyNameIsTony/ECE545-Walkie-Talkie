@@ -248,7 +248,7 @@
 
     bool _inISR;
 
-    void sendFrame(char toAddress, const void* buffer, char size, bool requestACK, bool sendACK);
+    void sendFrame(char toAddress, char* buffer, char size, bool requestACK, bool sendACK);
 
 
     //static RFM69* selfPointer;
