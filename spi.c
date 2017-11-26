@@ -24,7 +24,7 @@ void initSPI(){
     UCA0CTLW0 = UCSWRST;
     UCA0CTLW0 |= UCCKPH | UCMSB | UCMST | UCSYNC; // 3-pin, 8-bit SPI master
     UCA0CTL1 |= UCSSEL__SMCLK; // SMCLK
-    UCA0BR0 |= 0x10;//0x02; // /2
+    UCA0BR0 |= 0x50;//0x00;//0x10;//0x02; // /2
     UCA0BR1 = 0; //
     UCA0MCTLW = 0; // No modulation
     UCA0CTLW0 &= ~UCSWRST; // **Initialize USCI state machine**

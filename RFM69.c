@@ -85,7 +85,7 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
 
   _powerLevel = 31;
 
-  _isRFM69HW = false;
+  _isRFM69HW = true;
 
   P1IE |= BIT6;                    // P1.6 interrupt enabled
   P1IES &= ~BIT6;                  // P1.6 lo/hi edge
@@ -98,16 +98,18 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
     /* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY },
 
     /* 0x02 */ { REG_DATAMODUL, RF_DATAMODUL_DATAMODE_PACKET | RF_DATAMODUL_MODULATIONTYPE_FSK | RF_DATAMODUL_MODULATIONSHAPING_00 }, // no shaping
+    ///* 0x02 */ { REG_DATAMODUL, RF_DATAMODUL_DATAMODE_PACKET | RF_DATAMODUL_MODULATIONTYPE_OOK | RF_DATAMODUL_MODULATIONSHAPING_10 }, // no shaping
 
-    /* 0x03 */ { REG_BITRATEMSB, RF_BITRATEMSB_55555}, // default: 4.8 KBPS
+//    /* 0x03 */ { REG_BITRATEMSB, 0x00},//RF_BITRATEMSB_55555}, // default: 4.8 KBPS
 
+//    /* 0x04 */ { REG_BITRATELSB, 0x6b},//0xA0},//RF_BITRATELSB_55555},
+
+   /* 0x03 */ { REG_BITRATEMSB, RF_BITRATEMSB_55555}, // default: 4.8 KBPS
     /* 0x04 */ { REG_BITRATELSB, RF_BITRATELSB_55555},
 
     /* 0x05 */ { REG_FDEVMSB, RF_FDEVMSB_50000}, // default: 5KHz, (FDEV + BitRate / 2 <= 500KHz)
 
     /* 0x06 */ { REG_FDEVLSB, RF_FDEVLSB_50000},
-
-
 
     /* 0x07 */ { REG_FRFMSB, (char) (freqBand==RF69_315MHZ ? RF_FRFMSB_315 : (freqBand==RF69_433MHZ ? RF_FRFMSB_433 : (freqBand==RF69_868MHZ ? RF_FRFMSB_868 : RF_FRFMSB_915))) },
 
@@ -127,9 +129,11 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
 
     // +20dBm formula: Pout = -11 + OutputPower (with PA1 and PA2)** and high power PA settings (section 3.3.7 in datasheet)
 
-    ///* 0x11 */ { REG_PALEVEL, RF_PALEVEL_PA0_ON | RF_PALEVEL_PA1_OFF | RF_PALEVEL_PA2_OFF | RF_PALEVEL_OUTPUTPOWER_11111},
+    /* 0x11 */ { REG_PALEVEL, RF_PALEVEL_PA0_ON | RF_PALEVEL_PA1_OFF | RF_PALEVEL_PA2_OFF | RF_PALEVEL_OUTPUTPOWER_11111},
 
-    ///* 0x13 */ { REG_OCP, RF_OCP_ON | RF_OCP_TRIM_95 }, // over current protection (default is 95mA)
+    /* 0x12 */ { 0x12, 0x0f},
+
+    /* 0x13 */ { REG_OCP, 0x00},//RF_OCP_ON | RF_OCP_TRIM_95 }, // over current protection (default is 95mA)
 
 
 
@@ -138,6 +142,9 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
     /* 0x19 */ { REG_RXBW, RF_RXBW_DCCFREQ_010 | RF_RXBW_MANT_16 | RF_RXBW_EXP_2 }, // (BitRate < 2 * RxBw)
 
     //for BR-19200: /* 0x19 */ { REG_RXBW, RF_RXBW_DCCFREQ_010 | RF_RXBW_MANT_24 | RF_RXBW_EXP_3 },
+
+    ///* 0x19 */ {REG_RXBW, RF_RXBW_DCCFREQ_010 | RF_RXBW_MANT_20 | RF_RXBW_EXP_2}, // (BitRate < 2 * RxBw)
+
 
     /* 0x25 */ { REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01 }, // DIO0 is the only IRQ we're using
 
@@ -149,23 +156,33 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
 
     ///* 0x2D */ { REG_PREAMBLELSB, RF_PREAMBLESIZE_LSB_VALUE } // default 3 preamble bytes 0xAAAAAA
 
+    ///* 0x2E */ { REG_SYNCCONFIG, RF_SYNC_ON | RF_SYNC_FIFOFILL_AUTO | RF_SYNC_SIZE_2 | RF_SYNC_TOL_0 },
+
+    ///* 0x2F */ { REG_SYNCVALUE1, 0x2D },      // attempt to make this compatible with sync1 byte of RFM12B lib
     /* 0x2E */ { REG_SYNCCONFIG, RF_SYNC_ON | RF_SYNC_FIFOFILL_AUTO | RF_SYNC_SIZE_2 | RF_SYNC_TOL_0 },
-
     /* 0x2F */ { REG_SYNCVALUE1, 0x2D },      // attempt to make this compatible with sync1 byte of RFM12B lib
-
     /* 0x30 */ { REG_SYNCVALUE2, networkID }, // NETWORK ID
+//    /* 0x30 */ { REG_SYNCVALUE3, 0x55 },
+//    /* 0x30 */ { REG_SYNCVALUE4, 0x55 },
+//    /* 0x30 */ { REG_SYNCVALUE5, 0x55 },
+//    /* 0x30 */ { REG_SYNCVALUE6, 0x55 },
+//    /* 0x30 */ { REG_SYNCVALUE7, 0x55 },
+//    /* 0x30 */ { REG_SYNCVALUE8, 0x55 },
+
+
 
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_VARIABLE | RF_PACKET1_DCFREE_OFF | RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_ON | RF_PACKET1_ADRSFILTERING_OFF },
-
+    ///* 0x37 */ { REG_PACKETCONFIG1, 0x04},
     /* 0x38 */ { REG_PAYLOADLENGTH, 66 }, // in variable length mode: the max frame size, not used in TX
-
+    ///* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF | RF_PACKET1_ADRSFILTERING_OFF },
+    ///* 0x38 */ { REG_PAYLOADLENGTH, 0 }, // in variable length mode: the max frame size, not used in TX
     ///* 0x39 */ { REG_NODEADRS, nodeID }, // turned off because we're not using address filtering
 
     /* 0x3C */ { REG_FIFOTHRESH, RF_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RF_FIFOTHRESH_VALUE }, // TX on FIFO not empty
 
-    /* 0x3D */ { REG_PACKETCONFIG2, RF_PACKET2_RXRESTARTDELAY_2BITS | RF_PACKET2_AUTORXRESTART_ON | RF_PACKET2_AES_OFF }, // RXRESTARTDELAY must match transmitter PA ramp-down time (bitrate dependent)
+    ///* 0x3D */ { REG_PACKETCONFIG2, RF_PACKET2_RXRESTARTDELAY_2BITS | RF_PACKET2_AUTORXRESTART_ON | RF_PACKET2_AES_OFF }, // RXRESTARTDELAY must match transmitter PA ramp-down time (bitrate dependent)
 
-    //for BR-19200: /* 0x3D */ { REG_PACKETCONFIG2, RF_PACKET2_RXRESTARTDELAY_NONE | RF_PACKET2_AUTORXRESTART_ON | RF_PACKET2_AES_OFF }, // RXRESTARTDELAY must match transmitter PA ramp-down time (bitrate dependent)
+   /* 0x3D */ { REG_PACKETCONFIG2, RF_PACKET2_RXRESTARTDELAY_NONE | RF_PACKET2_AUTORXRESTART_OFF | RF_PACKET2_AES_OFF }, // RXRESTARTDELAY must match transmitter PA ramp-down time (bitrate dependent)
 
     /* 0x6F */ { REG_TESTDAGC, RF_DAGC_IMPROVED_LOWBETA0 }, // run DAGC continuously in RX mode for Fading Margin Improvement, recommended default for AfcLowBetaOn=0
 
@@ -311,9 +328,11 @@ void setMode(char newMode)
 
       writeReg(REG_OPMODE, (readReg(REG_OPMODE) & 0xE3) | RF_OPMODE_TRANSMITTER);
 
+      //writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
+
       _mode = RF69_MODE_TX;
 
-//      if (_isRFM69HW) setHighPowerRegs(true);
+      if (_isRFM69HW) setHighPower(true);
 
       break;
 
@@ -323,7 +342,7 @@ void setMode(char newMode)
 
       _mode = RF69_MODE_RX;
 
-//      if (_isRFM69HW) setHighPowerRegs(false);
+      if (_isRFM69HW) setHighPower(false);
 
       break;
 
@@ -441,6 +460,9 @@ void setMode(char newMode)
 
       return true;
 
+    }else if((_mode == RF69_MODE_TX) || (_mode == RF69_MODE_STANDBY))
+    {
+        return true;
     }
 
     return false;
@@ -450,13 +472,13 @@ void setMode(char newMode)
   void send(char toAddress, const void* buffer, char bufferSize, bool requestACK)
 
   {
-
+   /*
     writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
 
     unsigned long now = millis();
 
     while (!canSend() && ((millis() - now) < RF69_CSMA_LIMIT_MS)) receiveDone();
-
+    */
     sendFrame(toAddress, buffer, bufferSize, requestACK, false);
 
   }
@@ -545,9 +567,9 @@ void setMode(char newMode)
 
     writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
 
-    unsigned long now = millis();
+    //unsigned long now = millis();
 
-    while (!canSend() && millis() - now < RF69_CSMA_LIMIT_MS) receiveDone();
+    while (!canSend());// && millis() - now < RF69_CSMA_LIMIT_MS) receiveDone();
 
     SENDERID = sender;    // TWS: Restore SenderID after it gets wiped out by receiveDone()
 
@@ -559,7 +581,7 @@ void setMode(char newMode)
 
   // internal function
 
-  void sendFrame(char toAddress, const void* buffer, char bufferSize, bool requestACK, bool sendACK){
+  void sendFrame(char toAddress, char* buffer, char bufferSize, bool requestACK, bool sendACK){
 
     unsigned long txStart;
 
@@ -574,7 +596,7 @@ void setMode(char newMode)
     transfer_buf = calloc((bufferSize+4),sizeof(char));
 
     //char transfer_buf[5];
-
+/*
     setMode(RF69_MODE_STANDBY); // turn off receiver to prevent reception while filling fifo
 
     while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
@@ -592,7 +614,7 @@ void setMode(char newMode)
       CTLbyte = RFM69_CTL_REQACK;
     }
 
-
+*/
 
     // write to FIFO
 
@@ -613,23 +635,33 @@ void setMode(char newMode)
 
     setMode(RF69_MODE_TX);
 
-    txStart = millis();
+    //unsigned int txstart = millis();
 
-    while ((P1IN & 0x40) == 0 && millis() - txStart < RF69_TX_LIMIT_MS); // wait for DIO0 to turn HIGH signalling transmission finish
+    noInterrupts();
+//    P1OUT ^= 0x81;
+    while ((P1IN & 0x40) == 0); //&& ((millis() - txStart) < RF69_TX_LIMIT_MS)); // wait for DIO0 to turn HIGH signalling transmission finish
+//    P1OUT ^= 0x81;
+    maybeInterrupts();
 
-    //while (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PACKETSENT == 0x00); // wait for ModeReady
+//    printf("1:%x\n",readReg(REG_IRQFLAGS1));
+//    printf("2:%x\n",readReg(REG_IRQFLAGS2));
 
-    setMode(RF69_MODE_STANDBY);
+//    setMode(RF69_MODE_STANDBY);
 
+//    printf("1:%x\n",readReg(REG_IRQFLAGS1));
+//    printf("2:%x\n",readReg(REG_IRQFLAGS2));
 
   }
   // internal function - interrupt gets called when a packet is received
 
   void interruptHandler() {
 
+
     //pinMode(4, OUTPUT);
 
     //digitalWrite(4, 1);
+
+    //printf("%x\n",readReg(REG_IRQFLAGS2));
 
     if ((_mode == RF69_MODE_RX) && (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY))
 
@@ -676,7 +708,9 @@ __interrupt void Port_1(void) {
 
     noInterrupts();
     _inISR = true;
+    P1OUT ^= 0x81;
     interruptHandler();
+    P1OUT ^= 0x81;
     _inISR = false;
      P1IFG &=~BIT6;                        // P1.6 IFG cleared
      interrupts();
@@ -703,11 +737,11 @@ __interrupt void Port_1(void) {
         ACK_RECEIVED = 0;
 
         RSSI = 0;
-
+/*
         if (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY)
 
           writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
-
+*/
         writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01); // set DIO0 to "PAYLOADREADY" in receive mode
 
         setMode(RF69_MODE_RX);
@@ -722,7 +756,7 @@ __interrupt void Port_1(void) {
 
       //{
 
-        noInterrupts(); // re-enabled in unselect() via setMode() or via receiveBegin()
+//        noInterrupts(); // re-enabled in unselect() via setMode() or via receiveBegin()
 
 
         if (_mode == RF69_MODE_RX && PAYLOADLEN > 0)
@@ -734,12 +768,11 @@ __interrupt void Port_1(void) {
           return true;
 
         }
-
         else if (_mode == RF69_MODE_RX) // already in RX no payload yet
 
         {
 
-          interrupts(); // explicitly re-enable interrupts
+ //         interrupts(); // explicitly re-enable interrupts
 
           return false;
 
@@ -806,7 +839,7 @@ __interrupt void Port_1(void) {
 
         if (_isRFM69HW) // turning ON
 
-          writeReg(REG_PALEVEL, (readReg(REG_PALEVEL) & 0x1F) | RF_PALEVEL_PA1_ON | RF_PALEVEL_PA2_ON); // enable P1 & P2 amplifier stages
+          writeReg(REG_PALEVEL, (readReg(REG_PALEVEL) & 0x1f) | RF_PALEVEL_PA1_ON | RF_PALEVEL_PA2_ON); // enable P1 & P2 amplifier stages
 
         else
 
