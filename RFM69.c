@@ -73,6 +73,8 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
 
 {
 
+  const char *key = "ABCDEFGHIJKLMNOP";
+
   char i;
 
   //_interruptPin = RF69_IRQ_PIN;
@@ -212,14 +214,11 @@ bool rfm69_initialize(char freqBand, char nodeID, char networkID)
 
   // Disable it during initialization so we always start from a known state.
 
-  encrypt(0);
-
-
+  encrypt(key);
 
   setHighPower(_isRFM69HW); // called regardless if it's a RFM69W or RFM69HW
 
   setMode(RF69_MODE_STANDBY);
-
 
   while (((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00)); // wait for ModeReady
 
@@ -596,11 +595,11 @@ void setMode(char newMode)
     transfer_buf = calloc((bufferSize+4),sizeof(char));
 
     //char transfer_buf[5];
-/*
+
     setMode(RF69_MODE_STANDBY); // turn off receiver to prevent reception while filling fifo
 
     while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
-
+/*
     writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
 
     if (bufferSize > RF69_MAX_DATA_LEN) bufferSize = RF69_MAX_DATA_LEN;

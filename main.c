@@ -11,7 +11,7 @@ void main(void) {
 
 
     const char slave_address = 0x62;                // MCP4725 I2C address
-    const int PRESCALE = 13;//80;//13;//2;//13;                        // baudrate = SMCLK / PRESCALE = 5.33MHz/13 = 410Hz
+    const int PRESCALE = 51;//13;//80;//13;//2;//13;                        // baudrate = SMCLK / PRESCALE = 5.33MHz/13 = 410Hz
 
 //    printf("Hey There!\n");
 
@@ -21,9 +21,9 @@ void main(void) {
                                             // to activate previously configured port settings
     P1DIR |= 0x81;                          // Set P1.0 to output direction
 
-    //P1REN |= BIT1;
+    P1REN |= BIT1;
 
-    //P1OUT |= BIT1;
+    P1OUT |= BIT1;
 
     FRCTL0 = 0xA500 + NWAITS0;
 
@@ -70,18 +70,19 @@ void main(void) {
     {
 //        transmit();
         receive();
-//        if(0)//!(P1IN & BIT1))
-//        {
-//            //setMode(RF69_MODE_TX);
-//            //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
-//            transmit();
-//        }else
-//        {
-//            //setMode(RF69_MODE_RX);
-//            //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
-//            receive();
-//        }
-
+/*
+        if(1)//!(P1IN & BIT1))
+        {
+            //setMode(RF69_MODE_TX);
+            //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
+            transmit();
+        }else
+        {
+            //setMode(RF69_MODE_RX);
+            //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
+            receive();
+        }
+*/
     }
 }
 
@@ -125,7 +126,6 @@ void transmit()
         //printf("%x\n",readReg(REG_IRQFLAGS1));
         //printf("%x\n",readReg(REG_IRQFLAGS2));
 
-
 //    }
 
     sample_num =0;
@@ -135,7 +135,7 @@ void transmit()
 
 void receive()
 {
-//    while(1)//(P1IN & BIT1))
+//    while(1)//P1IN & BIT1)
 //    {
         unsigned int byte_num=0;
 
@@ -190,7 +190,7 @@ void receive()
         {
             DAC_TX_FM(2048);
         }
-  //  }
+  //}
 
 //    sample_num = 0;
 }
