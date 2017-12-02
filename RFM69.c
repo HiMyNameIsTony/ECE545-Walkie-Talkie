@@ -341,7 +341,7 @@ void setMode(char newMode)
 
       _mode = RF69_MODE_RX;
 
-      if (_isRFM69HW) setHighPower(false);
+//      if (_isRFM69HW) setHighPower(false);
 
       break;
 
@@ -596,12 +596,10 @@ void setMode(char newMode)
 
     //char transfer_buf[5];
 
-    setMode(RF69_MODE_STANDBY); // turn off receiver to prevent reception while filling fifo
+//    setMode(RF69_MODE_STANDBY); // turn off receiver to prevent reception while filling fifo
 
-    while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
+//    while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
 /*
-    writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
-
     if (bufferSize > RF69_MAX_DATA_LEN) bufferSize = RF69_MAX_DATA_LEN;
 
     if (sendACK){
@@ -645,7 +643,7 @@ void setMode(char newMode)
 //    printf("1:%x\n",readReg(REG_IRQFLAGS1));
 //    printf("2:%x\n",readReg(REG_IRQFLAGS2));
 
-//    setMode(RF69_MODE_STANDBY);
+    setMode(RF69_MODE_STANDBY);
 
 //    printf("1:%x\n",readReg(REG_IRQFLAGS1));
 //    printf("2:%x\n",readReg(REG_IRQFLAGS2));

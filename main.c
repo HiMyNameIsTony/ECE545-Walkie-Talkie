@@ -21,9 +21,9 @@ void main(void) {
                                             // to activate previously configured port settings
     P1DIR |= 0x81;                          // Set P1.0 to output direction
 
-    P1REN |= BIT1;
+    P1REN |= BIT2;
 
-    P1OUT |= BIT1;
+    P1OUT |= BIT2;
 
     FRCTL0 = 0xA500 + NWAITS0;
 
@@ -59,7 +59,7 @@ void main(void) {
 
 
 //        setMode(RF69_MODE_TX);
-      setMode(RF69_MODE_RX);
+//      setMode(RF69_MODE_RX);
    //P1OUT = 0;
 
    setPowerLevel(10);
@@ -69,20 +69,20 @@ void main(void) {
     for(;;)
     {
 //        transmit();
-        receive();
-/*
-        if(1)//!(P1IN & BIT1))
+//        receive();
+
+        if(!(P1IN & BIT2))
         {
             //setMode(RF69_MODE_TX);
             //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
             transmit();
         }else
         {
-            //setMode(RF69_MODE_RX);
+//            setMode(RF69_MODE_RX);
             //while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // wait for ModeReady
             receive();
         }
-*/
+
     }
 }
 
@@ -93,8 +93,8 @@ void transmit()
 
     //setMode(RF69_MODE_TX);
 
-//    while(1)//!(P1IN & BIT1))
-//    {
+    while(!(P1IN & BIT2))
+    {
 
         while(sample_num < 60)
         {
@@ -126,17 +126,19 @@ void transmit()
         //printf("%x\n",readReg(REG_IRQFLAGS1));
         //printf("%x\n",readReg(REG_IRQFLAGS2));
 
-//    }
+        sample_num =0;
 
-    sample_num =0;
+    }
+//
+//    sample_num =0;
 
 }
 
 
 void receive()
 {
-//    while(1)//P1IN & BIT1)
-//    {
+    while(P1IN & BIT2)
+    {
         unsigned int byte_num=0;
 
         //    setMode(RF69_MODE_RX);
@@ -188,11 +190,15 @@ void receive()
 
         if(sample_num == 0)
         {
-            DAC_TX_FM(2048);
+           DAC_TX_FM(2048);
         }
-  //}
+  }
 
-//    sample_num = 0;
+    sample_num = 0;
+    writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
+    writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
+    while (!canSend()) receiveDone();
+    setMode(RF69_MODE_STANDBY);
 }
 
 
